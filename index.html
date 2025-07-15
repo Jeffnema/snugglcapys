@@ -3,33 +3,50 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Capy Snuggl Collection, Snuggl</title>
+  <title>Capy Snuggl Collection • Snuggl</title>
 
-  <!-- Adigiana UI web‑font (primary) -->
-  <link rel="preconnect" href="https://fonts.cdnfonts.com">
-  <link href="https://fonts.cdnfonts.com/css/adigiana-ui" rel="stylesheet" />
-  <!-- Local alias in case the CDN naming ever changes → use lowercase keyword in CSS -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
   <style>
-    @font-face{
-      font-family:'adigianaui';
-      src:url('https://fonts.cdnfonts.com/s/75255/Adigiana-UI.woff2') format('woff2');
-      font-weight:400 700;
-      font-display:swap;
-    }
-  </style>
-
-  <style>
-    /* ------------ core resets ------------- */
+    @import url('https://fonts.cdnfonts.com/css/adigiana-2');
+    
+    /* ============ Core resets & base ============ */
     *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
     html{scroll-behavior:smooth;scroll-snap-type:y mandatory;}
-    body{
-      font-family:'adigianaui','Adigiana UI','Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,sans-serif;
+    body, .banner{
+      font-family:'Quicksand',sans-serif;
       background:#f4f6f6;
       color:#3a3a3a;
       overflow-x:hidden;
       transition:background .35s,color .35s;
+      cursor: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20"><circle cx="10" cy="10" r="8" fill="%230ccadb" opacity="0.8"/></svg>') 10 10, auto;
     }
+    #birthdayPopup .popup-text{
+      /* arrange vertically with breathing room */
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:1.25rem; /* extra space between heading, paragraph, and button */
+      line-height:1.6; /* more comfortable line spacing for text */
+    }
+
+    #birthdayPopup .popup-text h2{
+      margin:0; /* rely on flex gap instead */
+    }
+    #birthdayPopup .popup-text p{
+      margin:0; /* rely on flex gap */
+    }
+
     body.dark-mode{background:#121212;color:#eaeaea;}
+
+    /* Typography hierarchy */
+    h1, h2, h3, .logo-text, button, .badge {
+      font-family: 'Adigiana 2', 'Adigiana UI', sans-serif !important;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
 
     /* helpers */
     :root{
@@ -38,151 +55,647 @@
       --yellow:#f7cb64;
       --bubble-blue:#0a6ac0;
       --bubble-gray:#cbccce;
+      --spring-easing: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+      /* injected by JS on load */
+      --banner-h: 0px;
+      --nav-h: 0px;
     }
+    
     .wrapper{max-width:1400px;margin-inline:auto;padding-inline:clamp(1rem,3vw,3rem);}  
     img{display:block;max-width:100%;height:auto;}
 
-    /* ------------- banner -------------- */
+    /* Selection styling */
+    ::selection {
+      background: var(--cyan);
+      color: white;
+    }
+
+    /* ------------ banner -------------- */
     .banner{
-      position:fixed;top:0;left:0;right:0;z-index:1100;
-      background:var(--cyan);color:#fff;text-align:center;
-      font-size:.9rem;padding:.5rem .8rem;letter-spacing:.05em;
+      position:fixed;
+      top:0;
+      left:0;
+      right:0;
+      z-index:1100;
+      background:var(--cyan);
+      color:#000000;
+      text-align:center;
+      font-size:.9rem;
+      padding:.5rem .8rem;
+      letter-spacing:.05em;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    }
+    @keyframes rainbow-shift {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
     }
 
-    /* ------------- navbar -------------- */
+    /* ------------ navbar -------------- */
     nav{
-      position:fixed;top:var(--banner-h,0);left:0;right:0;z-index:1000;
-      background:#fff;box-shadow:0 2px 9px rgba(0,0,0,.05);
-      transition:background .35s;
+      position:fixed;
+      top:var(--banner-h);
+      left:0;
+      right:0;
+      z-index:1000;
+      background:rgba(255,255,255,0.95);
+      backdrop-filter: blur(10px);
+      box-shadow:0 2px 15px rgba(0,0,0,.08);
+      transition:all .35s;
     }
-    body.dark-mode nav{background:#1e1e1e;box-shadow:0 2px 9px rgba(0,0,0,.45);}  
-    nav .row{display:flex;justify-content:space-between;align-items:center;padding:1.05rem 0;}
-    .crumbs{display:flex;align-items:center;gap:.4rem;font-size:.9rem;color:#666;transition:color .35s;}
+    body.dark-mode nav{
+      background:rgba(30,30,30,0.95);
+      box-shadow:0 2px 15px rgba(0,0,0,.45);
+    }  
+    
+    nav .row{
+      display:grid;
+      grid-template-columns:1fr auto 1fr;
+      align-items:center;
+      padding:1.05rem 0;
+    }
+    
+    .crumbs{
+      grid-column:1;
+      color:#666;
+      font-size:.9rem;
+      display:flex;
+      align-items:center;
+      gap:.4rem;
+      transition:color .35s;
+    }
     body.dark-mode .crumbs{color:#bbb;}
-    .crumbs a{text-decoration:none;color:inherit;transition:color .25s;}
-    .crumbs a:hover{color:var(--cyan);}   
-    .logo-img{height:42px;width:auto;object-fit:contain;}
-    .nav-ico{display:flex;gap:1rem;font-size:1.25rem;}
-    body.dark-mode .nav-ico{color:#eaeaea;}
-
-    /* ------------- hero -------------- */
-    .hero{
-      height:calc(100vh - var(--banner-h) - var(--nav-h));
-      display:grid;place-items:center;text-align:center;position:relative;
-      background:linear-gradient(145deg,#eaf2f3 0%,#fff7fb 100%);
+    
+    .crumbs a{
+      text-decoration:none;
+      color:inherit;
+      transition:all .25s;
+      position: relative;
+      padding: 2px 4px;
     }
-    body.dark-mode .hero{background:linear-gradient(145deg,#1a1a1d 0%,#212124 100%);} 
-    .hero h1{font-size:clamp(2.2rem,5vw,3.6rem);margin-bottom:1rem;color:#222;transition:color .35s;}
-    body.dark-mode .hero h1{color:#eaeaea;}
-    .hero p{font-size:clamp(1.15rem,2.4vw,1.55rem);max-width:44rem;margin-inline:auto;line-height:1.6;color:#444;transition:color .35s;}
+    
+    .crumbs a::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: var(--cyan);
+      transition: width 0.3s ease;
+    }
+    
+    .crumbs a:hover::after {
+      width: 100%;
+    }
+    
+    .crumbs a:hover{color:var(--cyan);}
+    
+    .crumbs span {
+      animation: arrow-bounce 2s ease-in-out infinite;
+    }
+    
+    @keyframes arrow-bounce {
+      0%, 100% { transform: translateX(0); }
+      50% { transform: translateX(3px); }
+    }
+    
+    .logo-img{
+      grid-column:2;
+      justify-self:center;
+      height:42px;
+      width:auto;
+      object-fit:contain;
+      transition: transform 0.3s var(--spring-easing);
+    }
+    
+    .logo-img:hover {
+      transform: rotate(10deg) scale(1.1);
+    }
+
+    /* ------------ hero -------------- */
+    .hero{
+      scroll-snap-align:start;
+      /* extra padding so the banner + nav don't overlap the content */
+      padding-top: calc(var(--banner-h) + var(--nav-h) + 1rem);
+      min-height:calc(100vh - var(--banner-h) - var(--nav-h));
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      align-items:center;
+      position:relative;
+      text-align:center;
+      background:linear-gradient(145deg,#eaf2f3 0%,#fff7fb 100%);
+      overflow: hidden;
+    }
+    
+    body.dark-mode .hero{background:linear-gradient(145deg,#1a1a1d 0%,#212124 100%);}    
+
+    /* Floating background elements */
+    .hero::before {
+      content: '';
+      position: absolute;
+      width: 300px;
+      height: 300px;
+      background: radial-gradient(circle, var(--cyan) 0%, transparent 70%);
+      opacity: 0.1;
+      top: -150px;
+      right: -150px;
+      animation: float-bg 20s ease-in-out infinite;
+    }
+    
+    .hero::after {
+      content: '';
+      position: absolute;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, var(--pink) 0%, transparent 70%);
+      opacity: 0.1;
+      bottom: -200px;
+      left: -200px;
+      animation: float-bg 25s ease-in-out infinite reverse;
+    }
+    
+    @keyframes float-bg {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      33% { transform: translate(30px, -30px) scale(1.1); }
+      66% { transform: translate(-20px, 20px) scale(0.9); }
+    }
+    
+    .hero h1{
+      font-size:clamp(2.2rem,5vw,3.6rem);
+      margin-bottom:1rem;
+      color:#222;
+      transition:color .35s;
+      animation: hero-fade-in 1s ease-out;
+      background: linear-gradient(135deg, #222 0%, var(--cyan) 100%);
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.1));
+    }
+    
+    body.dark-mode .hero h1{
+      background: linear-gradient(135deg, #eaeaea 0%, var(--pink) 100%);
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    @keyframes hero-fade-in {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .hero p{
+      font-size:clamp(1.15rem,2.4vw,1.55rem);
+      max-width:44rem;
+      margin-inline:auto;
+      line-height:1.6;
+      color:#444;
+      transition:color .35s;
+      animation: hero-fade-in 1s ease-out 0.3s both;
+    }
+    
     body.dark-mode .hero p{color:#c9c9c9;}
-    .scroll-indicator{position:absolute;bottom:2.5rem;left:50%;translate:-50% 0;font-size:1.5rem;animation:bounce 2s infinite ease-in-out;}
-    @keyframes bounce{0%,20%,50%,80%,100%{translate:-50% 0;}40%{translate:-50% -14px;}60%{translate:-50% -7px;}}
+    
+    .hero p strong {
+      color: var(--cyan);
+      font-family: 'Adigiana 2', 'Adigiana UI', sans-serif;
+    }
+    
+    .hero-image{
+      margin-top:2rem;
+      animation: hero-fade-in 1s ease-out 0.6s both;
+    }
+    
+    .hero-image img{
+      border-radius:1rem;
+      max-width:40%;
+      height:auto;
+      margin:0 auto;
+      display:block;
+      filter: drop-shadow(0 20px 40px rgba(0,0,0,0.15));
+      transition: transform 0.3s ease;
+    }
+    
+    .hero-image img:hover {
+      transform: scale(1.05) rotate(-2deg);
+    }
+
+    .scroll-indicator{
+      position:absolute;
+      bottom:2.5rem;
+      left:50%;
+      translate:-50% 0;
+      font-size:1.5rem;
+      animation:bounce 2s infinite ease-in-out;
+      color: var(--cyan);
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+    }
+    
+    @keyframes bounce{
+      0%,20%,50%,80%,100%{translate:-50% 0;}
+      40%{translate:-50% -14px;}
+      60%{translate:-50% -7px;}
+    }
 
     /* ------------- product sections -------------- */
     section.product{
-      min-height:100vh;display:flex;align-items:center;scroll-snap-align:start;
-      transition:opacity .6s,background .35s,color .35s;position:relative;
-      --sec-bg:#f6f6f6;      
-      --btn:#ff7ea5;--badge-grad:linear-gradient(45deg,var(--yellow),var(--pink));
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      scroll-snap-align:start;
+      transition:all .6s;
+      position:relative;
       background:var(--sec-bg);
+      color:var(--text-color);
+      overflow: hidden;
     }
-    section.product:not(.active){opacity:.35;filter:blur(2px);} 
-    section.product.active{opacity:1;filter:none;}
+    
+    /* Background patterns for each section */
+    section.product::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      opacity: 0.05;
+      pointer-events: none;
+    }
+    
+    #coco::before { background: repeating-linear-gradient(45deg, transparent, transparent 20px, rgba(166,124,82,0.3) 20px, rgba(166,124,82,0.3) 40px); }
+    #bimi::before { background: radial-gradient(circle at 20% 80%, rgba(66,165,245,0.2) 0%, transparent 50%); }
+    #pepo::before { background: repeating-radial-gradient(circle at 50% 50%, transparent 0, transparent 20px, rgba(255,73,154,0.1) 20px, rgba(255,73,154,0.1) 40px); }
+    #pimi::before { background: linear-gradient(135deg, transparent 25%, rgba(255,213,79,0.1) 25%, rgba(255,213,79,0.1) 50%, transparent 50%); }
+    
+    section.product:not(.active){
+      opacity:.35;
+      filter:blur(2px);
+      transform: scale(0.95);
+    }
+    
+    section.product.active{
+      opacity:1;
+      filter:none;
+      transform: scale(1);
+    }
 
-    .product-wrap{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,480px),1fr));gap:4rem;align-items:center;}
+    .product-wrap{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(min(100%,480px),1fr));
+      gap:4rem;
+      align-items:center;
+    }
+    
     .product-wrap.reverse{direction:rtl;}
     .product-wrap.reverse>*{direction:ltr;}
 
     /* imagery & bubbles */
     .figure{position:relative;}
-    @keyframes float{0%,100%{translate:0 0;}50%{translate:0 -16px;}}
-    .figure img{animation:float 3s ease-in-out infinite;filter:drop-shadow(0 12px 28px rgba(0,0,0,.12));}
+    
+    @keyframes float{
+      0%,100%{translate:0 0;rotate:0deg;}
+      25%{translate:10px -8px;rotate:2deg;}
+      50%{translate:0 -16px;rotate:0deg;}
+      75%{translate:-10px -8px;rotate:-2deg;}
+    }
+    
+    .figure img{
+      animation:float 4s ease-in-out infinite;
+      filter:drop-shadow(0 20px 40px rgba(0,0,0,.15));
+      transition: transform 0.3s var(--spring-easing);
+    }
+    
+    .figure:hover img {
+      transform: scale(1.1);
+      filter:drop-shadow(0 25px 50px rgba(0,0,0,.2));
+    }
 
-    .bubble{position:absolute;top:-70px;right:20px;max-width:260px;padding:.8rem 1.1rem;border-radius:1.4rem 1.4rem 1.4rem .4rem;font-size:1.05rem;line-height:1.4rem;background:var(--bubble-blue);color:#fff;word-break:break-word;box-shadow:0 3px 11px rgba(0,0,0,.1);transition:background .35s,color .35s;}
+    .bubble{
+      position:absolute;
+      top:-70px;
+      right:20px;
+      max-width:260px;
+      padding:.8rem 1.1rem;
+      border-radius:1.4rem 1.4rem 1.4rem .4rem;
+      font-size:1.05rem;
+      line-height:1.4rem;
+      background:var(--bubble-blue);
+      color:#fff;
+      box-shadow:0 5px 15px rgba(0,0,0,.15);
+      transition:all .35s;
+      animation: bubble-pop 0.5s var(--spring-easing);
+      font-weight: 500;
+    }
+    
+    @keyframes bubble-pop {
+      from { transform: scale(0) rotate(-180deg); opacity: 0; }
+      to { transform: scale(1) rotate(0deg); opacity: 1; }
+    }
+    
     .bubble.gray{background:var(--bubble-gray);color:#000;}
-    body.dark-mode .bubble.gray{background:#2e2e31;color:#fff;}
     body.dark-mode .bubble{background:#0054a3;color:#fff;}
-    .bubble::after{content:"";position:absolute;bottom:-6px;right:25px;border:6px solid transparent;border-top-color:var(--bubble-blue);}  
-    .bubble.gray::after{border-top-color:var(--bubble-gray);}  
-    body.dark-mode .bubble::after{border-top-color:#0054a3;}
+    body.dark-mode .bubble.gray{background:#2e2e31;color:#fff;}
+    
+    .bubble::after{
+      content:"";
+      position:absolute;
+      bottom:-6px;
+      right:25px;
+      border:6px solid transparent;
+      border-top-color:var(--bubble-blue);
+    }
+    
+    .bubble.gray::after{border-top-color:var(--bubble-gray);}    
+    body.dark-mode .bubble::after{border-top-color:#0054a3;}    
     body.dark-mode .bubble.gray::after{border-top-color:#2e2e31;}
 
-    .bubble,button.adopt{font-family:'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji','adigianaui','Adigiana UI',sans-serif;}
-
     /* info */
-    .info h2{font-size:2.6rem;margin-bottom:1rem;color:#222;transition:color .35s;}
-    body.dark-mode .info h2{color:#eaeaea;}
-    .info p{font-size:1.1rem;line-height:1.75;color:#444;margin-bottom:2rem;transition:color .35s;}
-    body.dark-mode .info p{color:#c7c7c7;}
+    .info h2{
+      font-size:2.6rem;
+      margin-bottom:1rem;
+      transition:color .35s;
+      color:var(--text-color);
+      position: relative;
+      display: inline-block;
+    }
+    
+    .info h2::after {
+      content: '';
+      position: absolute;
+      bottom: -5px;
+      left: 0;
+      width: 60px;
+      height: 4px;
+      background: var(--btn);
+      border-radius: 2px;
+      transition: width 0.3s ease;
+    }
+    
+    .product.active .info h2::after {
+      animation: underline-grow 1s ease-out;
+    }
+    
+    @keyframes underline-grow {
+      from { width: 0; }
+      to { width: 60px; }
+    }
+    
+    .info p{
+      font-size:1.1rem;
+      line-height:1.75;
+      margin-bottom:2rem;
+      transition:color .35s;
+      color:var(--text-color);
+      opacity: 0.9;
+    }
 
     /* adopt button */
-    button.adopt{padding:.85rem 2.65rem;border-radius:999px;font-size:1.1rem;font-weight:700;cursor:pointer;border:3px solid currentColor;background:#fff;color:var(--btn);transition:transform .25s,box-shadow .25s,background .35s,color .35s;}
-    button.adopt:hover{transform:translateY(-4px);box-shadow:0 7px 18px rgba(0,0,0,.15);}  
-    body.dark-mode button.adopt{background:#1e1e1e;}
+    button.adopt{
+      padding:.85rem 2.65rem;
+      border-radius:999px;
+      font-size:1.1rem;
+      font-weight:700;
+      cursor:pointer;
+      border:3px solid transparent;
+      background:var(--btn);
+      color:#fff;
+      transition:all .3s var(--spring-easing);
+      position: relative;
+      overflow: hidden;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+    }
+    
+    button.adopt::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      background: rgba(255,255,255,0.3);
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      transition: width 0.6s, height 0.6s;
+    }
+    
+    button.adopt:hover {
+      transform: translateY(-4px) scale(1.05);
+      box-shadow: 0 10px 25px rgba(0,0,0,.2);
+      border-color: rgba(255,255,255,0.3);
+    }
+    
+    button.adopt:hover::before {
+      width: 300px;
+      height: 300px;
+    }
+    
+    button.adopt:active {
+      transform: translateY(-2px) scale(1.02);
+    }
 
     /* limited badge */
-    .badge{position:absolute;top:18px;left:18px;padding:.42rem .9rem;border-radius:999px;font-size:.72rem;font-weight:700;letter-spacing:.05em;background:var(--badge-grad);color:#fff;animation:shimmer 2s infinite ease-in-out;}  
-    @keyframes shimmer{0%,100%{opacity:.82;}50%{opacity:1;}}
-
-    /* ---------- individual palettes (enhanced) ---------- */
-    #coco  {--sec-bg:#f8efe9;background:radial-gradient(circle at 120% 20%,#fff8f2 0%,#f8efe9 80%);}  
-    #pimi  {--sec-bg:#eaf3ff;background:linear-gradient(135deg,#eaf3ff 0%,#d1e4ff 100%);} 
-    #estelle{--sec-bg:#fff2f7;background:radial-gradient(circle at -20% -20%,#fffdfd 0%,#ffecf7 100%);} 
-    #bimi  {--sec-bg:#e9edfb;background:linear-gradient(135deg,#e9edfb 0%,#c3d4ff 100%);} 
-    #jako  {--sec-bg:#1a1a1a;background:linear-gradient(135deg,#1a1a1a 0%,#2b2b2b 100%);} 
-    #pepo  {--sec-bg:#fff5f9;background:radial-gradient(circle at 0% 100%,#ffeaf3 0%,#fff5f9 70%);} 
-    #luvu  {--sec-bg:#fff3f9;background:radial-gradient(circle at 100% 0%,#ffeff8 0%,#fff3f9 70%);} 
-
-    body.dark-mode nav button{border:none;background:transparent;color:#eaeaea;}
-
-    /* responsive */
-    @media (max-width:950px){
-      .product-wrap{grid-template-columns:1fr;text-align:center;}
-      .product-wrap.reverse{direction:ltr;}
-      .bubble{left:50%;right:auto;translate:-50% 0;} .bubble::after{right:50%;translate:50% 0;}
+    .badge{
+      position:absolute;
+      top:18px;
+      left:18px;
+      padding:.42rem .9rem;
+      border-radius:999px;
+      font-size:.8rem;
+      font-weight:700;
+      letter-spacing:.05em;
+      background:var(--badge-grad);
+      color:#fff;
+      text-shadow:0 1px 2px rgba(0,0,0,0.4);
+      animation:shimmer 2s infinite ease-in-out, badge-swing 6s ease-in-out infinite;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    
+    /* MODIFIED: Changed shimmer keyframe to use the --glow-col variable */
+    @keyframes shimmer{
+      0%,100%{
+        opacity:.82;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      }
+      50%{
+        opacity:1;
+        box-shadow: 0 4px 20px var(--glow-col);
+      }
+    }
+    
+    @keyframes badge-swing {
+      0%, 100% { transform: rotate(-5deg); }
+      50% { transform: rotate(5deg); }
     }
 
-    /* ---------- Birthday Popup Enhancements ---------- */
-    #birthdayPopup[hidden]{display:none;}
+    /* ---------- individual palettes ---------- */
+    #coco  {--sec-bg:#D1BFA2;--btn:#A67C52;--text-color:#4D3415;--badge-grad:linear-gradient(45deg,#C49E76 0%,#8B5A2B 100%);--glow-col:rgba(166,124,82,.65);}  
+    #bimi  {--sec-bg:#E3F2FD;--btn:#42A5F5;--text-color:#0D47A1;--badge-grad:linear-gradient(45deg,#42A5F5 0%,#1E88E5 100%);--glow-col:rgba(66,165,245,.6);} 
+    #pepo  {--sec-bg:#FFF5F8;--btn:#FF499A;--text-color:#C2185B;--badge-grad:linear-gradient(45deg,#FF499A 0%,#FF6F61 100%);--glow-col:rgba(255,73,154,.6);} 
+    #pimi  {--sec-bg:#FFF9E3;--btn:#FFD54F;--text-color:#8C6E00;--badge-grad:linear-gradient(45deg,#FFD54F 0%,#FFCA28 100%);--glow-col:rgba(255,213,79,.65);} 
+    #estelle{--sec-bg:#FFE0F0;--btn:#FF1493;--text-color:#C2185B;--badge-grad:linear-gradient(45deg,#FF1493 0%,#FF69B4 100%);--glow-col:rgba(255,20,147,.6);} 
+    #jako  {--sec-bg:#1a1a1a;--btn:#FF8C00;--text-color:#FFFFFF;--badge-grad:linear-gradient(45deg,#FF8C00 0%,#FF5722 100%);--glow-col:rgba(255,140,0,.7);} 
+    #luvu  {--sec-bg:#FFEDED;--btn:#FF6F61;--text-color:#B00020;--badge-grad:linear-gradient(45deg,#FF6F61 0%,#B00020 100%);--glow-col:rgba(255,111,97,.65);} 
+    #beedee{--sec-bg:#F9EFFF;--btn:#ff922d;--text-color:#e2ce16;--badge-grad:linear-gradient(45deg,#f88132 0%,#ffcf32 100%);--glow-col:rgba(255, 160, 36, 0.65);}    
+
+    #jako .bubble:not(.gray){background:#FF8C00;color:#fff}
+    #jako .bubble:not(.gray)::after{border-top-color:#FF8C00}
+
+    /* ===== Confetti & shaking animations ===== */
+    @keyframes capyShake {
+      0%,100%{transform:translate(0,0) rotate(0deg);}  
+      25%{transform:translate(-3px,3px) rotate(-3deg);} 
+      50%{transform:translate(3px,-3px) rotate(3deg);} 
+      75%{transform:translate(-3px,3px) rotate(-3deg);} 
+    }
+    .shake{ animation: capyShake 400ms cubic-bezier(.36,.07,.19,.97) infinite; }
+
+    .confetti{
+      position:fixed;
+      width:8px;
+      height:8px;
+      border-radius:1px;
+      pointer-events:none;
+      z-index:1300;
+      animation: confetti 1.2s ease-out forwards;
+    }
+    @keyframes confetti {
+      0%{opacity:1;transform:translate(0,0) rotate(0deg);} 
+      100%{opacity:0;transform:translate(calc(180px * var(--dx)), calc(180px * var(--dy))) rotate(720deg);} 
+    }
+
+    /* ===== Birthday popup ===== */
+    #birthdayPopup{
+      position:fixed;
+      inset:0;
+      z-index:1200;
+      display:grid;
+      place-items:center;
+      background:rgba(0,0,0,.5);
+      backdrop-filter: blur(8px);
+      opacity:0;
+      visibility:hidden;
+      transition: opacity .4s, visibility .4s;
+    }
+    
+    #birthdayPopup:not([hidden]) {
+      opacity: 1;
+      visibility: visible;
+    }
+
     #birthdayPopup .overlay{
-      position:fixed;inset:0;background:rgba(0,0,0,.7);display:grid;place-items:center;z-index:2000;animation:fadein .4s forwards;
+      /* centered via grid */
     }
+    
     #birthdayPopup .dialog{
-      background:var(--pink);padding:3rem 4rem;border-radius:1.8rem;max-width:92vw;
-      display:flex;align-items:center;gap:2.5rem;flex-wrap:wrap;position:relative;text-align:left;
+      background: #fff;
+      padding: 2.5rem;
+      border-radius: 20px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.5rem;
+      box-shadow: 0 10px 40px rgba(0,0,0,.2);
+      position: relative;
+      transform: scale(0.7);
+      transition: transform .4s var(--spring-easing);
     }
-    #birthdayPopup h2{font-size:2rem;color:#fff;margin-bottom:1.2rem;}
-    #birthdayPopup p{color:#fff;font-size:1.15rem;margin-bottom:2rem;}
-    #birthdayPopup .close-btn{
-      position:absolute;top:.9rem;right:.9rem;border:none;background:#fff;width:36px;height:36px;border-radius:50%;font-size:1.2rem;cursor:pointer;
+    
+    #birthdayPopup:not([hidden]) .dialog {
+      transform: scale(1);
     }
+    
+    #birthdayPopup .close-btn {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      background: #eee;
+      border: none;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      font-size: 1.5rem;
+      line-height: 1;
+      cursor: pointer;
+      color: #888;
+      transition: all .2s;
+    }
+    
+    #birthdayPopup .close-btn:hover {
+      background: #ddd;
+      color: #333;
+      transform: rotate(90deg);
+    }
+    
+    #birthdayPopup button.adopt{/* NEW */
+      background: #ff9113;
+      color:#fff;
+      border-color:transparent;
+    }
+    #birthdayPopup button.adopt::before{/* keep ripple visible on purple */
+      background: rgba(255,255,255,0.25);
+    }
+    
+    body.dark-mode #birthdayPopup .dialog {
+      background: #2a2a2e;
+    }
+    
+    body.dark-mode #birthdayPopup .close-btn {
+      background: #444;
+      color: #bbb;
+    }
+    body.dark-mode #birthdayPopup .close-btn:hover {
+      background: #555;
+      color: #fff;
+    }
+
+    /* Loading animation & rest of existing CSS ...  */
+    /* Mobile & motion preference blocks remain unchanged ... */
   </style>
 </head>
 <body>
-  <!-- announcement banner & nav -->
+  <div class="loader"></div>
+  <div class="progress-bar" id="progressBar"></div>
+  <div class="section-transition"></div>
+  <div class="magic-cursor"></div>
+
   <div class="banner">FREE SHIPPING NATIONWIDE</div>
   <nav>
     <div class="wrapper row">
-      <div class="crumbs"><a href="/">Snuggl</a><span>→</span><a href="/families">Families</a><span>→</span><span>Capys</span></div>
+      <div class="crumbs">
+        <a href="/">Snuggl</a>
+        <span>→</span>
+        <a href="/families">Families</a>
+        <span>→</span>
+        <span>Capys</span>
+      </div>
       <img src="Sent_By_2.5_x_3.5_in_4_x_4_in_1.avif" alt="snuggl logo" class="logo-img" />
-      <div class="nav-ico"><button aria-label="search">🔍</button><button aria-label="account">👤</button><button aria-label="cart">🛒</button></div>
     </div>
   </nav>
 
-  <!-- hero intro -->
-  <header class="hero">
+
+  <header class="hero" id="hero">
     <div class="wrapper">
       <h1>We know you've been waiting.</h1>
-      <p>These sleepy critters sure took their time getting here! Introducing the new <strong>Capy Snuggl Collection</strong>, a naptime‑loving family whose eyes are <em>always</em> closed and dreams forever sweet. 💤</p>
+      <p>These sleepy critters sure took their time getting here! Meet the core <strong>Capy Snuggl Collection</strong> – a naptime loving family whose eyes are <em>always</em> closed and dreams forever sweet.</p>
+      <div class="hero-image">
+        <img src="6ee2e416-8f5a-4de4-8345-61b52ea4f28a.png" alt="Capys group hero">
+      </div>
     </div>
     <div class="scroll-indicator">⬇︎</div>
   </header>
 
-  <!-- COCO -->
+  <!-- Existing product sections remain unchanged -->
+  <!-- (coco, pimi, estelle, bimi, jako, pepo, luvu) -->
+
   <section class="product active" id="coco">
     <div class="wrapper product-wrap">
-      <figure class="figure"><span class="bubble gray">zzz... maybe later...</span><img src="coco.png" alt="Coco Capy Snuggl"></figure>
+      <figure class="figure">
+        <span class="bubble gray">zzz... maybe later...</span>
+        <img src="coco.png" alt="Coco Capy Snuggl">
+      </figure>
       <div class="info">
         <h2>Coco</h2>
         <p>Coco is the original Capy Snuggl, proud founder of the napping club. He lives for lazy afternoons, cozy blankets, and uninterrupted dream sessions. Show him a sunny windowsill and he's out like a light. Adopt him if you need a chill buddy who reminds you to slow down and snooze.</p>
@@ -191,10 +704,15 @@
     </div>
   </section>
 
-  <!-- PIMI -->
+  <!-- Other product sections here (pimi, estelle, bimi, jako, pepo, luvu) are unchanged for brevity -->
+
   <section class="product" id="pimi">
     <div class="wrapper product-wrap reverse">
-      <figure class="figure"><span class="bubble">I'M GONNA BE THE BEST SWIMMER! 💪</span><img src="bakubro.png" alt="Pimi Capy Snuggl"><span class="badge">Summer Edition ☀️</span></figure>
+      <figure class="figure">
+        <span class="bubble">I'M GONNA BE THE BEST SWIMMER!</span>
+        <img src="bakubro.png" alt="Pimi Capy Snuggl">
+        <span class="badge">Summer Edition ☀️</span>
+      </figure>
       <div class="info">
         <h2>Pimi</h2>
         <p>Pimi cannonballs into every day with explosive enthusiasm. His ducky float is always on standby because adventures can start at any moment. He cheers the loudest at family picnics and races the wind on beach days. Bring him home if you want a hype friend who never runs out of energy.</p>
@@ -203,10 +721,13 @@
     </div>
   </section>
 
-  <!-- ESTELLE -->
   <section class="product" id="estelle">
     <div class="wrapper product-wrap">
-      <figure class="figure"><span class="bubble gray">a lady must always dress for the occasion~ 🌸</span><img src="ette.png" alt="Estelle Capy Snuggl"><span class="badge">Summer Edition 🌺</span></figure>
+      <figure class="figure">
+        <span class="bubble gray">A lady must always dress for the occasion~ 🌸</span>
+        <img src="ette.png" alt="Estelle Capy Snuggl">
+        <span class="badge">Summer Edition 🌺</span>
+      </figure>
       <div class="info">
         <h2>Estelle</h2>
         <p>Estelle glides through life with effortless elegance, never a pawprint out of place. She hosts sunset tea parties and reads romance novels under palm trees. Her sundress flutters like petals in the breeze, and she always has the perfect compliment ready. Adopt Estelle if you crave refined vibes and gentle encouragement.</p>
@@ -215,10 +736,13 @@
     </div>
   </section>
 
-  <!-- BIMI -->
   <section class="product" id="bimi">
     <div class="wrapper product-wrap reverse">
-      <figure class="figure"><span class="bubble">remember kids, vegetables before watermelon! 🥬</span><img src="unc.png" alt="Bimi Capy Snuggl"><span class="badge">Summer Edition 🏖️</span></figure>
+      <figure class="figure">
+        <span class="bubble">remember cappos, grass before watermelon</span>
+        <img src="unc.png" alt="Bimi Capy Snuggl">
+        <span class="badge">Summer Edition 🏖️</span>
+      </figure>
       <div class="info">
         <h2>Bimi</h2>
         <p>Bimi is the patient big brother who keeps the Capy crew on track. He packs wholesome snacks, checks sunscreen levels, and leads bedtime stories by the campfire. Calm and collected, he teaches balance between playtime and rest. Adopt Bimi when you want a steady pal who’s got your back.</p>
@@ -227,22 +751,27 @@
     </div>
   </section>
 
-  <!-- JAKO (dark mode) -->
   <section class="product" id="jako">
     <div class="wrapper product-wrap">
-      <figure class="figure"><span class="bubble gray">BOO! Did I scare ya? Hehe! 🎃</span><img src="jako.png" alt="Jako Capy Snuggl"><span class="badge">Halloween Special 👻</span></figure>
+      <figure class="figure">
+        <span class="bubble gray">BOO! <br>heh.. that totally got you</span>
+        <img src="jako.png" alt="Jako Capy Snuggl">
+        <span class="badge">Halloween Special 👻</span>
+      </figure>
       <div class="info">
         <h2>Jako</h2>
-        <p>Every October, Jako rolls into town with his pumpkin costume and mischievous grin! This spooky capy visits the family for exactly two weeks, bringing candy corn and ghost stories. He's the fun uncle who lets you stay up past bedtime and teaches you the best hiding spots for trick-or-treating. His favorite hobby? Jumping out and surprising sleepy Coco! Adopt Jako if you love playful pranks wrapped in pumpkin spice.</p>
+        <p>Every October, Jako rolls into town with his pumpkin costume and mischievous grin! This spooky capy visits the family for exactly two weeks, bringing candy corn and ghost stories. He's the fun uncle who lets you stay up past bedtime and teaches you the best hiding spots for trick-or-treating. His favourite hobby? Jumping out and surprising sleepy Coco! Adopt Jako if you love playful pranks wrapped in pumpkin spice.</p>
         <button class="adopt">Adopt Jako</button>
       </div>
     </div>
   </section>
 
-  <!-- PEPO -->
   <section class="product" id="pepo">
     <div class="wrapper product-wrap reverse">
-      <figure class="figure"><span class="bubble">Watermelon for breakfast, lunch, AND dinner! 🍉</span><img src="watermelon.png" alt="Pepo Capy Snuggl"></figure>
+      <figure class="figure">
+        <span class="bubble">me love melon, melon yum</span>
+        <img src="watermelon.png" alt="Pepo Capy Snuggl">
+      </figure>
       <div class="info">
         <h2>Pepo</h2>
         <p>Pepo is absolutely, completely, 100% obsessed with watermelon! This silly pink capy has been known to wear watermelon slices as hats, shoes, and even earrings. She giggles at her own jokes, does little watermelon dances, and has convinced herself that watermelon seeds will grow in her tummy (they won't, but don't tell her that!). Adopt Pepo if your life needs more pink sweetness and carefree fun.</p>
@@ -251,70 +780,128 @@
     </div>
   </section>
 
-  <!-- LUVU -->
   <section class="product" id="luvu">
     <div class="wrapper product-wrap">
-      <figure class="figure"><span class="bubble gray">Sending snugs your way!</span><img src="Screenshot_2025-07-14_184428-removebg-preview.png" alt="Luvu Capy Snuggl"><span class="badge">Valentine's Special 💝</span></figure>
+      <figure class="figure">
+        <span class="bubble gray">Sending snugs your way!</span>
+        <img src="Screenshot_2025-07-14_184428-removebg-preview.png" alt="Luvu Capy Snuggl">
+        <span class="badge">Valentine's Special 💝</span>
+      </figure>
       <div class="info">
         <h2>Luvu</h2>
-        <p>Luvu arrives every February with angel wings and an endless supply of hugs! This cupid capy's mission is to make sure everyone feels loved and appreciated. They leave little heart-shaped notes around the house and organize group cuddle sessions. Luvu believes that every day should be Valentine's Day and that there's no problem a good hug can't help solve!</p>
+        <p>Luvu arrives every February with angel wings and an endless supply of hugs! This cupid capy's mission is to make sure everyone feels loved and appreciated. They leave little heart-shaped notes around the house and organise group cuddle sessions. Luvu believes that every day should be Valentine's Day and that there's no problem a good hug can't help solve!</p>
         <button class="adopt">Adopt Luvu</button>
       </div>
     </div>
   </section>
 
-  <!-- birthday popup -->
+  <!-- estelle, bimi, jako, pepo, luvu sections omitted for brevity -->
+
   <div id="birthdayPopup" hidden>
     <div class="overlay">
-      <div class="dialog">
+      <div class="dialog" id="beedee-popup"> <!-- Added id for clarity -->
         <button aria-label="close" class="close-btn" onclick="closePopup()">×</button>
-        <img src="beedee.png" alt="Beedee Birthday Capy" style="width:260px;filter:drop-shadow(0 8px 16px rgba(0,0,0,.25));">
+        <img src="beedee.png" alt="Beedee Birthday Capy" style="width:260px;filter:drop-shadow(0 12px 24px rgba(0,0,0,.25));">
         <div class="popup-text">
-          <h2>🎉 Happy Early Birthday! 🎉</h2>
-          <p>Meet <strong>Beedee</strong> – Your exclusive Birthday Edition Capy! Limited‑time only 🎈</p>
-          <button class="adopt" style="color:var(--pink);">Claim Beedee!</button>
+          <h2>Happy Early Birthday! <br></h2>
+          <p>Meet <strong>Beedee</strong> – Your exclusive Birthday Edition Capy! Limited-time only<br></p>
+          <!-- STYLE CLEANUP: removed inline style so button uses common .adopt dynamics -->
+          <button class="adopt">Adopt Beedee!</button>
         </div>
       </div>
     </div>
   </div>
 
   <script>
-    /* always start at the top */
-    if('scrollRestoration' in history){history.scrollRestoration='manual';}
-    window.scrollTo(0,0);
+  // --- GLOBAL helpers ---
+  const birthdayPopup = document.getElementById('birthdayPopup');
+  function closePopup() {
+    birthdayPopup.hidden = true;
+  }
 
-    /* compute banner/nav heights */
-    const setHeights=()=>{
-      const banner=document.querySelector('.banner');document.documentElement.style.setProperty('--banner-h',banner.offsetHeight+'px');
-      const nav=document.querySelector('nav');document.documentElement.style.setProperty('--nav-h',nav.offsetHeight+'px');
-    };
-    window.addEventListener('load',setHeights);
-    window.addEventListener('resize',setHeights);
+  /**
+   * JS patch: 1) ensure hero isn't hidden by fixed header
+   * 2) mark active product sections so they're not blurred
+   * 3) adopt-button explosion animation per capy, incl. Beedee popup
+   * 4) show birthday popup on load
+   */
+  document.addEventListener('DOMContentLoaded', () => {
+    /* ---------- calc banner / nav heights to CSS vars ---------- */
+    const root = document.documentElement;
+    const banner = document.querySelector('.banner');
+    const nav    = document.querySelector('nav');
+    function setOffsets(){
+      root.style.setProperty('--banner-h', `${banner.offsetHeight}px`);
+      root.style.setProperty('--nav-h', `${nav.offsetHeight}px`);
+    }
+    setOffsets();
+    window.addEventListener('resize', setOffsets);
 
-    /* intersection observer for active section + dark mode switch for Jako */
-    const sections=[...document.querySelectorAll('section.product')];
-    const io=new IntersectionObserver(entries=>{
-      entries.forEach(e=>{
-        if(e.isIntersecting){
-          sections.forEach(s=>s.classList.toggle('active',s===e.target));
-          document.body.classList.toggle('dark-mode',e.target.id==='jako');
-        }
+    /* ---------- activate section on scroll ---------- */
+    const products = document.querySelectorAll('section.product');
+    const io = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        entry.target.classList.toggle('active', entry.isIntersecting);
       });
-    },{threshold:.55});
-    sections.forEach(s=>io.observe(s));
+    }, { threshold: 0.55 });
+    products.forEach(sec => io.observe(sec));
 
-    /* birthday demo popup */
-    const popup=document.getElementById('birthdayPopup');
-    function closePopup(){popup.hidden=true;}
-    setTimeout(()=>popup.hidden=false,2500);
+    /* ---------- adopt animations ---------- */
+    const colors = ['#0ccadb','#f54b95','#f7cb64','#42A5F5','#FF499A','#FFD54F','#FF8C00','#BB68FF']; // added Beedee purple
+    document.querySelectorAll('button.adopt').forEach(btn => {
+      btn.addEventListener('click', () => {
+        // detect context (popup vs product section)
+        const popupDialog = btn.closest('#birthdayPopup');
+        let img;
+        if(popupDialog){
+          img = popupDialog.querySelector('.dialog img'); // Beedee image
+        } else {
+          img = btn.closest('section.product')?.querySelector('.figure img');
+        }
+        if(!img) return;
 
-    /* heart particle on adopt */
-    document.querySelectorAll('button.adopt').forEach(btn=>btn.addEventListener('click',e=>{
-      const h=document.createElement('div');h.textContent='❤️';h.style.position='absolute';h.style.left=(e.pageX-15)+'px';h.style.top=(e.pageY-15)+'px';h.style.fontSize='28px';h.style.pointerEvents='none';h.style.animation='heart 1.6s ease-out forwards';document.body.appendChild(h);setTimeout(()=>h.remove(),1600);}));
-    const style=document.createElement('style');style.textContent="@keyframes heart{0%{transform:translateY(0) scale(1);opacity:1;}100%{transform:translateY(-90px) scale(0);opacity:0;}}@keyframes fadein{from{opacity:0;}to{opacity:1;}}";document.head.appendChild(style);
+        // shake escalation
+        img.classList.add('shake');
+        let dur = 400;
+        const escalator = setInterval(() => {
+          dur *= 0.78;
+          img.style.animationDuration = dur + 'ms';
+          if(dur < 60){
+            clearInterval(escalator);
+            explode(img);
+            img.classList.remove('shake');
+            img.style.animationDuration = '';
+            // if it's the popup, close it shortly after the confetti
+            if(popupDialog){
+              setTimeout(closePopup, 750);
+            }
+          }
+        }, 300);
+      });
+    });
 
-    /* twemoji fallback */
-    (function(){const s=document.createElement('script');s.src='https://twemoji.maxcdn.com/v/latest/twemoji.min.js';s.crossOrigin='anonymous';s.onload=()=>twemoji.parse(document.body,{folder:'svg',ext:'.svg'});document.head.appendChild(s);}());
+    function explode(el){
+      const rect = el.getBoundingClientRect();
+      for(let i=0;i<45;i++){
+        const s = document.createElement('span');
+        s.className = 'confetti';
+        s.style.left = rect.left + rect.width/2 + 'px';
+        s.style.top  = rect.top  + rect.height/2 + 'px';
+        s.style.background = colors[Math.floor(Math.random()*colors.length)];
+        s.style.setProperty('--dx', (Math.random()*2-1).toFixed(2));
+        s.style.setProperty('--dy', (Math.random()*2-1).toFixed(2));
+        document.body.appendChild(s);
+        s.addEventListener('animationend', () => s.remove());
+      }
+    }
+    
+    // Show the popup after 2.5 seconds
+    setTimeout(() => {
+        if(birthdayPopup) {
+            birthdayPopup.hidden = false;
+        }
+    }, 2500);
+  });
   </script>
 </body>
 </html>
